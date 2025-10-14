@@ -23,7 +23,7 @@ async function getConnection() {
     try {
         const pool = await sql.connect(config); //passar pra função connect novas conexões
         return pool; //retornar o resultado
-    } catch (error) {
+    } catch (error) { 
         console.error("Erro na conexão do SQL Server", error);
     }    
 }
