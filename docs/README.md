@@ -30,8 +30,11 @@
     "message": "Produto cadastrado com sucesso!"
 }
 ```
+### PUT /produtos
+- **Descrição**: Atualiza um produto já existente
 
-
+### DELETE /produtos
+-**Descrição**: Deleta um produto já existente
 
 
 ### Clientes
@@ -56,3 +59,9 @@
     "message": "Cliente cadastrado com sucesso!"
 }
 ```
+
+------ Rotas do insomnia:
+GET -> localhost:8081/produtos
+POST -> localhost:8081/produtos
+PUT -> localhost:8081/produtos/idProduto
+DELETE -> localhost:8081/produtos/idProduto

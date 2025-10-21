@@ -26,7 +26,7 @@ const clienteModel = {
 
             const pool = await getConnection(); // criar a conexão com banco de dados
 
-            const querySQL = 'SELECT * FROM clientes WHERE cpfCliente = @cpfCliente;'; //selecionar entre todos se o cpf é igual à algum cpf existente.
+            const querySQL = 'SELECT * FROM clientes WHERE cpfCliente = @cpfCliente'; //selecionar entre todos se o cpf é igual à algum cpf existente.
 
             const result = await pool.request() //
                 .input('cpfCliente', sql.Char(14), cpfCliente)
@@ -54,7 +54,7 @@ const clienteModel = {
                 //sql.varchar é pra saber se estao sendo passados corretamente e o tipo de dado
                 //INPUT é a caixinha com valor dentro
 
-                .input('cpfCliente', sql.Char(14), cpfCliente)
+                .input('cpfCliente', sql.UniqueIdentifier, cpfCliente)
                 .query(querySQL)
 
         } catch (error) {

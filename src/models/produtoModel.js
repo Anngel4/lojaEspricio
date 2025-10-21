@@ -4,7 +4,9 @@ const { sql, getConnection } = require("../config/db") //primeira coisa a fazer
 //criar objeto de funções: ler, criar, atualizar, deletar -crud-
 
 const produtoModel = {
-    //async pq pd demorar
+
+
+    //buscar todos
     buscarTodos: async () => {
         try {
             const pool = await getConnection(); //criar conexão com o bd
@@ -18,10 +20,31 @@ const produtoModel = {
             return result.recordset;
         } catch (error) {
             console.log("Erro ao buscar produtos..", error); //cada erro é personaloizado
-            throw error; //passa o erro pro controller tratar tlg
+            throw error; //passa o erro pro controller tratar 
         }
     },
-    
+
+
+    //buscar um por um p atualizar PUT/UPDATE
+    buscarUm: async (idProduto) => {
+        try {
+            const pool = await getConnection();
+
+            const querySQL = 'SELECT * From Produtos WHERE idProduto = @idProduto';
+
+            const result = await pool.request()
+                .input('idProduto', sql.UniqueIdentifier, idProduto)
+                .query(querySQL)
+
+            return result.recordset;
+
+        } catch (error) {
+            console.log("Erro ao buscar o produto..", error); //cada erro é personalizado
+            throw error; //passa o erro pro controller tratar 
+        }
+    },
+
+
     //inserir os valores(insert into... values..)
     inserirProduto: async (nomeProduto, precoProduto) => {
         try {
@@ -45,6 +68,45 @@ const produtoModel = {
             throw error; //nao vai enviar resposta, so vai passar
         }
 
+    },
+
+    //atualização, antes de tudo precisamos identifica-lo com id, nome e preco
+    atualizarProduto: async (idProduto, nomeProduto, precoProduto) => {
+        try {
+            const pool = await getConnection();
+            const querySQL = `
+                UPDATE Produtos
+                SET nomeProduto = @nomeProduto,
+                    precoProduto = @precoProduto
+                WHERE idProduto = @idProduto
+            `
+            await pool.request()
+                .input('idProduto', sql.UniqueIdentifier, idProduto)
+                .input('nomeProduto', sql.VarChar(100), nomeProduto)
+                .input('precoProduto', sql.Decimal(10, 2), precoProduto)
+                .query(querySQL)
+
+            //SET de setup
+        } catch (error) {
+            console.log("Erro ao atualizar produtos..", error);
+            throw error; 
+        }
+    },
+
+    deletarProduto: async (idProduto) => {
+        try {
+            const pool = await getConnection();
+
+            const querySQL = ' DELETE FROM Produtos WHERE idProduto=@idProduto'
+
+            await pool.request()
+                .input('idProduto', sql.UniqueIdentifier, idProduto)
+                .query(querySQL)
+        } catch (error) {
+            console.log("Erro ao deletar o produto..", error);
+            throw error; 
+        }
+        
     }
 }
 
