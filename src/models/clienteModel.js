@@ -1,8 +1,10 @@
-const { UniqueIdentifier, Char } = require("mssql");
+const { UniqueIdentifier, Char, pool } = require("mssql");
 const { sql, getConnection } = require("../config/db") //primeira coisa a fazer
 
 //modelo dos dados do banco de dados
-//criar objeto de funções: ler, criar, atualizar, deletar -crud-
+
+
+//----------criar objeto de funções: ler, criar, atualizar, deletar -crud-
 const clienteModel = {
     //async pq pd demorar
     buscarTodos: async () => {
@@ -13,14 +15,37 @@ const clienteModel = {
             let sql = 'SELECT * FROM clientes';
 
             //armazenar resultadossss
-            const result = await pool.request().query(sql)
+            const result = await pool.request()
+                .query(sql)
 
             return result.recordset;
         } catch (error) {
             console.log("Erro ao buscar clientes..", error); //cada erro é personaloizado
-            throw error; //passa o erro pro controller tratar 
+            throw error; //passa o erro pro controller tratar. Ele reverbera.
         }
     },
+
+    //-------------Buscar apenas 1 cliente
+    buscarUm: async (idCliente) => {
+
+        try {
+            const pool = await getConnection();
+    
+            const querySQL = `SELECT * FROM clientes WHERE idCliente = @idCliente`;
+            const result = await pool.request()
+                .input('idCliente', sql.UniqueIdentifier, idCliente)
+                .query(querySQL)
+
+            return result.recordset;
+            
+        } catch (error) {
+            console.error('Erro ao buscar produto:', error);
+            throw error; // passar a resposta para o controller
+        }
+        
+    },
+    //----------Buscar por CPF
+
     buscarCPF: async (cpfCliente) => {
         try {
 
@@ -31,7 +56,7 @@ const clienteModel = {
             const result = await pool.request() //
                 .input('cpfCliente', sql.Char(14), cpfCliente)
                 .query(querySQL);
-
+  
             return result.recordset;
 
         } catch (error) {
@@ -39,7 +64,8 @@ const clienteModel = {
             throw error; // passar a resposta para o controller
         }
     },
-    // inserir os valores(insert into... values..)
+
+    //--------------- inserir os clientes e seus valores(insert into... values..)
     inserirCliente: async (nomeCliente, cpfCliente) => {
         try {
             const pool = await getConnection();
@@ -48,13 +74,11 @@ const clienteModel = {
 
 
             await pool.request()
-
                 .input('nomeCliente', sql.VarChar(100), nomeCliente)
                 //cria, add o tipo, resultado oferecido
                 //sql.varchar é pra saber se estao sendo passados corretamente e o tipo de dado
                 //INPUT é a caixinha com valor dentro
-
-                .input('cpfCliente', sql.UniqueIdentifier, cpfCliente)
+                .input('cpfCliente', sql.VarChar(20), cpfCliente)
                 .query(querySQL)
 
         } catch (error) {

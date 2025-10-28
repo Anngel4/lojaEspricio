@@ -3,6 +3,7 @@ const { clienteModel } = require("../models/clienteModel"); //PUXAR
 const { UniqueIdentifier } = require("mssql");
 
 const clienteController = {
+
     //--------------------------------
     //controle da requisição e resposta req, res. 
     //listar todos os produtos
@@ -11,8 +12,18 @@ const clienteController = {
 
     listarClientes: async (req, res) => {
         try {
-            const clientes = await clienteModel.buscarTodos(); //é uma função e precisa de parenteses p ser chamada
+            const { idCliente } = req.query;
 
+            if (idCliente) {
+                if (idCliente.length != 36) {
+                    return res.status(400).json({ erro: "ID do cliente inválido" })
+                }
+
+                const cliente = await clienteModel.buscarUm(idCliente)
+                res.status(200).json(cliente);
+            }
+            
+            const clientes = await clienteModel.buscarTodos(); //é uma função e precisa de parenteses p ser chamada
             res.status(200).json(clientes);
         } catch (error) {
             console.error("Erro ao listar cliente", error);
@@ -38,6 +49,7 @@ const clienteController = {
             }
 
             const result = await clienteModel.buscarCPF(cpfCliente); //esperar os resultados
+
             if (result.length > 0) {
                 return res.status(409).json({ message: 'Este CPF já existe. ' }); //aqui ele vai ver as posções e identificar os nums do cpf
             }
